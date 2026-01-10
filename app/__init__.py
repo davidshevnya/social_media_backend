@@ -1,6 +1,6 @@
 from flask import Flask
 
-from .extensions import db, migrate
+from .extensions import db, migrate, jwt
 
 def create_app(config_file='config.py'):
     app = Flask(__name__)
@@ -8,5 +8,6 @@ def create_app(config_file='config.py'):
     
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
     
     return app
