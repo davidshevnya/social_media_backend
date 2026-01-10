@@ -1,10 +1,12 @@
-from flask import Flask, render_template_string
+from flask import Flask
 
-def create_app():
+from .extensions import db, migrate
+
+def create_app(config_file='config.py'):
     app = Flask(__name__)
+    app.config.from_pyfile(config_file)
     
-    @app.route('/hello')
-    def hello_world():
-        return render_template_string('<h1>Hello, World!</h1>')
+    db.init_app(app)
+    migrate.init_app(app, db)
     
     return app
