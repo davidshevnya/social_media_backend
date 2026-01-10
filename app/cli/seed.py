@@ -1,7 +1,7 @@
 import click
 
 from app.extensions import db
-from app.models.user import User
+from app.models import User
 
 @click.group()
 def seed():
@@ -15,5 +15,9 @@ def seed_users():
         User(username='bob', email='bob@email.com', password_hash='hashed'),
     ]
     db.session.add_all(users)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except db.exc.IntegrityError:
+        click.echo('u already seeded users!')
+        return db.session.rollback()
     click.echo('Seeded users!')
