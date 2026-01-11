@@ -18,3 +18,25 @@ def get_current_user():
     current_user_id = get_jwt_identity()
     user = User.query.get_or_404(current_user_id)
     return jsonify(user.to_json(include_email=True))
+
+@users_bp.route('/me/edit', methods=['PUT'])
+@jwt_required()
+def edit_current_user():
+    current_user_id = get_jwt_identity()
+    user = User.query.get_or_404(current_user_id)
+    
+    data = request.get_json()
+    allowed_fields = [
+        'username', 'display_name', 'bio', 'location',
+        'website', 'profile_picture_url', 'cover_photo_url'
+    ]
+    
+    for field in allowed_fields:
+        if field in data:
+            setattr(user, field, data[field])
+    try:
+        db.session.commit()
+        return jsonify(user.to_json(include_email=True)), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(message='Update failed', error=str(e)), 500
