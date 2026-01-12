@@ -42,11 +42,12 @@ def test_edit_current_user(client):
     })
     
     assert response.status_code == 200
-    assert response.json.get('email') == 'test@example.com'
-    assert response.json.get('username') == 'testuser2'
-    assert response.json.get('display_name') == 'Test User 2'
-    assert response.json.get('bio') == 'Test User 2 Bio'
-    assert response.json.get('location') == 'USA'
-    assert response.json.get('website') == 'example.com'
-    assert response.json.get('profile_picture_url') == 'example.com/testuser2/profile_picture'
-    assert response.json.get('cover_photo_url') == 'example.com/testuser2/cover_photo'
+    data = response.json
+    assert data.get('email') == 'test@example.com'
+    assert data.get('username') == 'testuser2'
+    assert data.get('display_name') == 'Test User 2'
+    assert data.get('bio') == 'Test User 2 Bio'
+    assert data.get('location') == 'USA'
+    assert data.get('website') == 'example.com'
+    assert data.get('profile_picture_url') == 'example.com/testuser2/profile_picture'
+    assert data.get('cover_photo_url') == 'example.com/testuser2/cover_photo'
