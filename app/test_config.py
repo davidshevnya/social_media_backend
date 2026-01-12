@@ -1,6 +1,9 @@
 #sqlalchemy
 TESTING = True
-SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory'
+SQLALCHEMY_ENGINES = {
+    'default': 'sqlite:///:memory'
+}
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 #jwt
 JWT_SECRET_KEY = 'test-secret-keyKlM2254'

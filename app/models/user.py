@@ -1,28 +1,30 @@
+from datetime import datetime
+from datetime import UTC
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
-from app.extensions import db
+from app.extensions import Base
 
-class User(db.Model):
+class User(Base):
     __tablename__ = 'users'
     
     # Basic info
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(80), unique=True)
+    email: Mapped[str] = mapped_column(String(120), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
     
     # Profile info
-    display_name = db.Column(db.String(100))
-    bio = db.Column(db.String(500))
-    profile_picture_url = db.Column(db.String(255))
-    cover_photo_url = db.Column(db.String(255))
-    location = db.Column(db.String(100))
-    website = db.Column(db.String(255))
+    display_name: Mapped[str] = mapped_column(String(100), nullable=True)
+    bio: Mapped[str] = mapped_column(String(500), nullable=True)
+    profile_picture_url: Mapped[str] = mapped_column(String(255), nullable=True)
+    cover_photo_url: Mapped[str] = mapped_column(String(255), nullable=True)
+    location: Mapped[str] = mapped_column(String(100), nullable=True)
+    website: Mapped[str] = mapped_column(String(255), nullable=True)
     
     # Timestamps
-    created_at = db.Column(
-        db.DateTime(timezone=True), server_default=func.now(), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -44,3 +46,4 @@ class User(db.Model):
             data['email'] = self.email
         
         return data
+    

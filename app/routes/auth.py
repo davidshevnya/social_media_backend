@@ -4,6 +4,7 @@ from flask_jwt_extended import (
     get_jwt_identity
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import select
 
 from app.models import User
 from app.extensions import db
@@ -16,10 +17,10 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    
-    if User.query.filter_by(email=email).first():
+
+    if db.session.scalar(select(User).where(User.email == email)):
         return jsonify(message='That email already exists'), 409
-    elif User.query.filter_by(username=username).first():
+    elif db.session.scalar(select(User).where(User.username == username)):
         return jsonify(message='That username already exists'), 409
     
     password_hash = generate_password_hash(password)
@@ -36,9 +37,9 @@ def login():
     password = data.get('password')
     
     if username:
-        user = User.query.filter_by(username=username).first()
+        user = db.session.scalar(select(User).where(User.username == username))
     elif email:
-        user = User.query.filter_by(email=email).first()
+        user = db.session.scalar(select(User).where(User.email == email))
     else:
         return jsonify(message='Enter username or email'), 401
     
