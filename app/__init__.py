@@ -1,7 +1,7 @@
 from flask import Flask
 
 from .extensions import db, alembic, jwt
-from .models.user import User
+from .models import User, Post
 from .cli import register_cli
 
 
