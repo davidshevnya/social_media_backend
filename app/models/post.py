@@ -1,10 +1,11 @@
 from datetime import datetime
 from datetime import UTC
 from sqlalchemy import String, Text, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.extensions import Base
+from . import User
 
 class Post(Base):
     __tablename__ = 'posts'
@@ -13,6 +14,7 @@ class Post(Base):
     title: Mapped[str] = mapped_column(String(50), default='Untitled Post')
     content: Mapped[str] = mapped_column(Text)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    user: Mapped[list['User']] = relationship(back_populates='posts')
     
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC)) 

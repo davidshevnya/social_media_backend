@@ -1,10 +1,11 @@
 from datetime import datetime
 from datetime import UTC
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.extensions import Base
+from . import Post
 
 class User(Base):
     __tablename__ = 'users'
@@ -22,6 +23,9 @@ class User(Base):
     cover_photo_url: Mapped[str] = mapped_column(String(255), nullable=True)
     location: Mapped[str] = mapped_column(String(100), nullable=True)
     website: Mapped[str] = mapped_column(String(255), nullable=True)
+    
+    # Posts
+    posts: Mapped[list['Post']] = relationship(back_populates='user')
     
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
