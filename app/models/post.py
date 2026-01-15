@@ -2,7 +2,6 @@ from datetime import datetime
 from datetime import UTC
 from sqlalchemy import String, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 
 from app.extensions import Base
 

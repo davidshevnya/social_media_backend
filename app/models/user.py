@@ -2,7 +2,6 @@ from datetime import datetime
 from datetime import UTC
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
 
 from app.extensions import Base
 
@@ -28,6 +27,7 @@ class User(Base):
     
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
+    updated_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
     
     def __repr__(self):
         return f'<User {self.username}>'

@@ -1,3 +1,5 @@
+from datetime import datetime
+from datetime import UTC
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -46,6 +48,8 @@ def edit_current_user():
     
     if not updated_fields:
         return jsonify(message='No valid fields to update'), 400
+
+    user.updated_at = datetime.now(UTC)
 
     try:
         db.session.commit()
