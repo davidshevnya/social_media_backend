@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import UTC
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError
 
 from app.models import Post, User
 from app.extensions import db
@@ -13,23 +14,29 @@ posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 @jwt_required()
 def create_post():
     data = request.json
-    current_user_id = get_jwt_identity()
-
-    content = data.get('content')
-    if not content:
-        return jsonify(message='Content is required'), 400
-    
-    title = data.get('title')
+    data['user_id'] = get_jwt_identity()
 
     try:
-        post = Post(title=title, content=content, user_id=current_user_id)
+        validation = post_schema.load(data, session=db.session)
+        post = Post(**data)
         db.session.add(post)
         db.session.commit()
 
-        return jsonify(message='Post created successfully!', post=post_schema.dump(post)), 201
+        return jsonify(
+            message='Post created successfully!',
+            post=post_schema.dump(post)
+        ), 201
+    except ValidationError as e:
+        return jsonify(
+            message='Validation failed.',
+            errors=e.messages_dict
+        ), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify(message='Failed to create post')
+        return jsonify(
+            message='Failed to create post',
+            error=str(e)
+        ), 500
     
 @posts_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
@@ -65,14 +72,24 @@ def edit_post(id):
     post.updated_at = datetime.now(UTC)
     
     try:
+        data = post_schema.dump(post)
+        validation = post_schema.load(data, session=db.session) # type: ignore
         db.session.commit()
         return jsonify(
             message='Post updated successfully',
             post=post_schema.dump(post)
         ), 200
+    except ValidationError as e:
+        return jsonify(
+            message='Validation failed.',
+            errors=e.messages_dict
+        ), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify(message='Update failed', error=str(e)), 500
+        return jsonify(
+            message='Update failed',
+            error=str(e)
+        ), 500
     
 @posts_bp.route('/user/<int:id>', methods=['GET'])
 @jwt_required()

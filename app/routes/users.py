@@ -2,6 +2,7 @@ from datetime import datetime
 from datetime import UTC
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError
 
 from app.models import User
 from app.extensions import db
@@ -52,11 +53,21 @@ def edit_current_user():
     user.updated_at = datetime.now(UTC)
 
     try:
+        data = user_schema.dump(user)
+        validation = user_schema.load(data, session=db.session) # type: ignore
         db.session.commit()
         return jsonify(
             message='User updated successfully',
             user=user_schema.dump(user)
         ), 200
+    except ValidationError as e:
+        return jsonify(
+            message='Validation failed.',
+            error=e.messages_dict
+        ), 400
     except Exception as e:
         db.session.rollback()
-        return jsonify(message='Update failed', error=str(e)), 500
+        return jsonify(
+            message='Update failed',
+            error=str(e)
+        ), 500

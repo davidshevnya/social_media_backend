@@ -3,17 +3,19 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
     get_jwt_identity
 )
+from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import select
 
 from app.models import User
 from app.extensions import db
-
+from app.schemas import user_schema
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
+    data = request.json
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
@@ -24,10 +26,20 @@ def register():
         return jsonify(message='That username already exists'), 409
     
     password_hash = generate_password_hash(password)
-    user = User(username=username, email=email, password_hash=password_hash)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify(message='User created succesfully'), 201
+    data.pop('password')
+    
+    try:
+        validation = user_schema.load(data, session=db.session)
+        user = User(username=username, email=email, password_hash=password_hash)
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(message='User created succesfully'), 201
+    except ValidationError as e:
+        return jsonify(message='Validation failed.', errors=e.messages_dict), 400
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(message='Create failed', error=str(e)), 500
+    
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

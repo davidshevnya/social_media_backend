@@ -11,4 +11,4 @@ def register_and_login(client):
         'password': 'password123'
     })
 
-    return login_response
+    return login_response.json['access_token']
