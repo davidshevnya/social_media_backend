@@ -3,6 +3,7 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
     get_jwt_identity
 )
+from flasgger import swag_from
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import select
@@ -15,6 +16,71 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    """
+    Register a new user
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - username
+            - email
+            - password
+          properties:
+            username:
+              type: string
+              example: johndoe
+            email:
+              type: string
+              format: email
+              example: john@example.com
+            password:
+              type: string
+              format: password
+              example: SecurePass123
+    responses:
+      201:
+        description: User created successfully
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: User created successfully
+      400:
+        description: Validation failed
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Validation failed.
+            errors:
+              type: object
+      409:
+        description: Email or username already exists
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: That email already exists
+      500:
+        description: Server error
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Create failed
+            error:
+              type: string
+    """
     data = request.json
     username = data.get('username')
     email = data.get('email')
@@ -43,6 +109,55 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """
+    User Log in
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          required:
+            - password
+          properties:
+            username:
+              type: string
+              example: johndoe
+            email:
+              type: string
+              format: email
+              example: john@example.com
+            password:
+              type: string
+              format: password
+              example: SecurePass123
+    responses:
+      200:
+        description: Successful login
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Login Successful
+            access_token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            refresh_token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      401:
+        description: Failed logging in
+        schema:
+          type: object
+          properties:
+            message:
+              type: string
+              example: Bad email or username.
+    """
     data = request.get_json()
     username = data.get('username')
     email = data.get('email')
@@ -71,6 +186,26 @@ def login():
 @auth_bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
+    """
+    JWT refresh token
+    ---
+    tags:
+      - Authentication
+    parameters:
+      - name: Authorization
+        in: header
+        required: true
+        description: Bearer JWT refresh token
+    responses:
+      200:
+        description: Success
+        schema:
+            type: object
+            properties:
+                access_token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+    """
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity)
     return jsonify(access_token=access_token)
