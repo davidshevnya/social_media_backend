@@ -83,7 +83,6 @@ This project was a great hands-on introduction to backend development. Here's wh
 
 If I continue working on this, I'd like to add:
 - More complex relationships (comments, likes, followers)
-- API documentation with Swagger/OpenAPI
 - Password reset functionality
 - Rate limiting
 
