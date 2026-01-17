@@ -48,7 +48,7 @@ def delete_post(id):
         return jsonify(message='Post deleted successfully!')
     except Exception as e:
         db.session.rollback()
-        return jsonify(message='Deleting failed', error=str(e))
+        return jsonify(message='Deleting failed', error=str(e)), 500
 
 @posts_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
