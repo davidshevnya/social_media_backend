@@ -37,7 +37,19 @@ def create_post():
             message='Failed to create post',
             error=str(e)
         ), 500
-    
+
+@posts_bp.route('/<int:id>/delete', methods=['DELETE'])
+@jwt_required()
+def delete_post(id):
+    post = db.get_or_abort(Post, id)
+    try:
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify(message='Post deleted successfully!')
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(message='Deleting failed', error=str(e))
+
 @posts_bp.route('/<int:id>', methods=['GET'])
 @jwt_required()
 def get_post(id):
