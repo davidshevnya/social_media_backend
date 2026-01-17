@@ -9,7 +9,7 @@ class Post(Base):
     __tablename__ = 'posts'
     
     id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(50), default='Untitled Post')
+    title: Mapped[str] = mapped_column(String(50))
     content: Mapped[str] = mapped_column(Text)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     user: Mapped[list['User']] = relationship(back_populates='posts') # type: ignore

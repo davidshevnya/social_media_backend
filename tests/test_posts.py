@@ -4,10 +4,10 @@ from .utils import register_and_login
 
 @pytest.mark.parametrize('title, content, status_code', [
     ('First test title', 'First test content', 201),
-    ('', 'imdumbass', 201),
+    ('', 'imdumbass', 400),
     ('Post title', '', 400),
     ('imgay'*69, '', 400),
-    ('', 'imgay', 201)
+    ('', 'imgay', 400)
 ])
 def test_create_post(client, title, content, status_code):
     token =  register_and_login(client)
@@ -73,12 +73,18 @@ def test_get_user_posts(client):
     assert posts[0]['title'] == 'test title' 
     assert posts[0]['content'] == 'test content' 
     
-    
-def test_post(client):
+@pytest.mark.parametrize('title, content, status_code', [
+    ('python', 'python is the best?', 200),
+    ('', 'non-title post', 400),
+    ('non-content post', '', 400),
+    ('', '', 400),
+    ('hello'*50, 'content', 400)
+])
+def test_edit_post(client, title, content, status_code):
     token =  register_and_login(client)
     
     # Create post
-    response = client.post('posts/create', headers={
+    client.post('posts/create', headers={
         'Authorization': f'Bearer {token}'
     }, json={
         'title': 'test title',
@@ -89,12 +95,18 @@ def test_post(client):
     response = client.put('/posts/1/edit', headers={
         'Authorization': f'Bearer {token}'
     }, json={
-        'title': 'iamgay',
-        'content': 'iloveboys'
+        'title': f'{title}',
+        'content': f'{content}'
     })
     
-    assert response.status_code == 200
-    user = response.json.get('post')
-    assert user.get('title') == 'iamgay'
-    assert user.get('content') == 'iloveboys'
+    # Delete post
+    client.delete('/posts/1/delete', headers={
+        'Authorization': f'Bearer {token}'
+    })
+    
+    assert response.status_code == status_code
+    if status_code == 200:
+        user = response.json.get('post')
+        assert user.get('title') == title
+        assert user.get('content') == content
     

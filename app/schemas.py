@@ -15,9 +15,10 @@ class PostSchema(SQLAlchemyAutoSchema):
         include_relationships = True
         exclude = ('user', )
 
-   
+
+    @validates('title')
     @validates('content')
-    def validate_content(self, value, data_key):
+    def validate_post(self, value, data_key):
         if not value or len(value) < 3:
             raise ValidationError('Content must be at least 3 characters long')
 

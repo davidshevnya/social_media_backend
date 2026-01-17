@@ -62,6 +62,8 @@ def edit_post(id):
     post = db.get_or_abort(Post, id)
     data = request.get_json()
     
+    data['user_id'] = get_jwt_identity()
+    
     allowed_fields = [
         'title', 'content'
     ]
@@ -84,7 +86,6 @@ def edit_post(id):
     post.updated_at = datetime.now(UTC)
     
     try:
-        data = post_schema.dump(post)
         validation = post_schema.load(data, session=db.session) # type: ignore
         db.session.commit()
         return jsonify(
