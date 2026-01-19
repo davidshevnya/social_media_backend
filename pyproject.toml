@@ -17,6 +17,11 @@ dependencies = [
     "pytest-flask>=1.3.0",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff>=0.14.13",
+]
+
 [tool.ruff]
 exclude = [
   ".ruff_cache",
@@ -38,3 +43,4 @@ select = ["E4", "E7", "E9", "F", "Q"]
 
 [tool.ruff.lint.flake8-quotes]
 inline-quotes = "single"
+
